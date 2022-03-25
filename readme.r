@@ -3,7 +3,7 @@
 # Stocke dans chaque tour de boucle ces infos dans deux tableaux différentes, villes et codeIris par exemple
 # Affiche la carte avec le code du dessus.
 
-````r
+````
 library(sf)
 
 adresses <- read.csv('./adresses.csv')
