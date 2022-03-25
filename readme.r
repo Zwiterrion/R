@@ -3,8 +3,7 @@
 # Stocke dans chaque tour de boucle ces infos dans deux tableaux différentes, villes et codeIris par exemple
 # Affiche la carte avec le code du dessus.
 
-```r
-
+````r
 library(sf)
 
 adresses <- read.csv('./adresses.csv')
@@ -43,4 +42,4 @@ irisDeMesAdresses = subset(nc, nc$CODE_IRIS %in% codeIris)
 
 plot(st_geometry(cities))
 plot(st_geometry(irisDeMesAdresses), pch = 3, col = 'blue', add = TRUE)
-```
+````
