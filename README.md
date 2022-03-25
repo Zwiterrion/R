@@ -1,7 +1,7 @@
-# crée ton fichier csv avec les adresses postales
-# itère dessus avec une boucle for pour faire un appel à https://pyris.datajazz.io/api/search/?geojson=false&q= et récupére le `complete_code` et le `city`
-# Stocke dans chaque tour de boucle ces infos dans deux tableaux différentes, villes et codeIris par exemple
-# Affiche la carte avec le code du dessus.
+1. crée ton fichier csv avec les adresses postales
+2. itère dessus avec une boucle for pour faire un appel à https://pyris.datajazz.io/api/search/?geojson=false&q= et récupére le `complete_code` et le `city`
+3. Stocke dans chaque tour de boucle ces infos dans deux tableaux différentes, villes et codeIris par exemple
+4. Affiche la carte avec le code du dessus.
 
 ````r
 library(sf)
