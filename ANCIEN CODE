@@ -1,0 +1,127 @@
+### Ancien code qui marche 
+
+Registre_poumon <- read.csv2("R://Masters//Stage_G_BARETH//etude_POUMON//Etude_poumon//poumon_selec.csv")
+names(Registre_poumon)
+
+# Choses à faires : 
+## PENSER à FAIRE UNE FONCTION parce que si je change le nom de ma variable ça va être probélamtique. 
+## Dans le cas où pT0 + pN0 et pM0 -> faire une fonction qui permet de faire la même chose que lorsque c'est à égal à "" (vide)
+# #### Définitions : #### 
+# Si on a pas assez d'info pour le TNM rajouter une colonne en précisant que nous avons décidez de la placer sur la strate la plus basse. 
+# /!\ tous les pTNM et cTNM sont considérés comme des charactères. 
+
+
+
+for(i in 1:nrow(Registre_poumon)) {
+  
+  # Si l'UICC est inconnu alors : 
+  if(is.na(Registre_poumon[i,"UICC"])){
+    Registre_poumon[i,"STADE"] <- "Version UICC non connue"}
+ 
+   # Si l'UICC = 8 alors on rentre dans un  nouveau if/else : 
+  else if (Registre_poumon[i,"UICC"] == 8) {
+    
+    ## on utilise le cTNM 
+    if (Registre_poumon[i,"PT"] == "" & Registre_poumon[i,"PN"]== "" & Registre_poumon[i,"PM"]== "" ){
+      Registre_poumon[i,"STADE"] <- "on utilise le cTNM"} 
+    else if (Registre_poumon[i,"PT"] == "0" & Registre_poumon[i,"PN"]== "0" & Registre_poumon[i,"PM"]== "0" ){
+      Registre_poumon[i,"STADE"] <- "on utilise le cTNM"}
+    else if (Registre_poumon[i,"PT"] == "y0" | Registre_poumon[i,"PT"] == "y1" | Registre_poumon[i,"PT"] == "y1a" | Registre_poumon[i,"PT"] == "y1b" | Registre_poumon[i,"PT"] == "y1c" | Registre_poumon[i,"PT"] == "y2a" | Registre_poumon[i,"PT"] == "y2b" | Registre_poumon[i,"PT"] == "y3" | Registre_poumon[i,"PT"] == "y4" | Registre_poumon[i,"PN"] == "y0" | Registre_poumon[i,"PN"] == "y1" | Registre_poumon[i,"PN"] == "y2" | Registre_poumon[i,"PN"] == "y3") {
+      Registre_poumon[i,"STADE"] <- "on utilise le cTNM"
+      Registre_poumon[i,"STADE_precision"] <- "neo-adjuvant"
+    }
+    ## on utilise le pTNM
+    else { 
+      ### on utilise le pM que si la valeur du pM est differente de "" (vide) ou de "8"
+      if (Registre_poumon[i,"PM"] != "" & Registre_poumon[i,"PM"] != "8") {
+        if (Registre_poumon[i,"PM"] == "1c") {Registre_poumon[i,"STADE"] <- "Stade IV-B"}
+        else if (Registre_poumon[i,"PM"] == "1") {
+          Registre_poumon[i,"STADE"] <- "Stade IV-B"
+          Registre_poumon[i,"STADE_precision"] <- "imprécis" }
+        else {Registre_poumon[i,"STADE"] <- "Stade IV-A"}
+        }
+      ### On utilise le pN seulement si la valeur de pN est différente de "" (vide) ou "x" ou "8"
+      else if (Registre_poumon[i,"PN"] != "" & Registre_poumon[i,"PN"] != "8" & Registre_poumon[i,"PN"] != "x") {
+        #### Si pN = 3 deux cas de figure avec le pT :  
+        if (Registre_poumon[i,"PN"] == "3"){
+          if (Registre_poumon[i,"PT"] == "3" | Registre_poumon[i,"PT"] == "4" ) {Registre_poumon[i,"STADE"] <- "Stade III-C"}
+          else {Registre_poumon[i,"STADE"] <- "Stade III-B"}
+        } 
+        #### Si pN = 2, deux cas de figure : 
+        else if(Registre_poumon[i,"PN"] == "2"){
+          if (Registre_poumon[i,"PT"] == "3" | Registre_poumon[i,"PT"] == "4" ) {Registre_poumon[i,"STADE"] <- "Stade III-B"}
+          else {Registre_poumon[i,"STADE"] <- "Stade III-A"}
+        }
+        #### Si pN = 1, deux cas de figure : 
+        else if(Registre_poumon[i,"PN"] == "1"){
+          if (Registre_poumon[i,"PT"] == "3" | Registre_poumon[i,"PT"] == "4" ) {Registre_poumon[i,"STADE"] <- "Stade III-A"}
+          else {Registre_poumon[i,"STADE"] <- "Stade II-B"}
+        }
+        #### Si pN = 0, huit cas de figure : 
+        else if(Registre_poumon[i,"PN"] == "0"){ Registre_poumon[i,"STADE"] <- "voir le pT"
+                }
+      }
+      
+      else {Registre_poumon[i,"STADE"] <- "pT!"}
+       }
+    
+  }
+  
+    # Si l'UICC ne correspond à aucune des deux autres conditions alors c'est que la version de l'UICC est antérieure
+  else {Registre_poumon[i,"STADE"] <- "Version UICC antérieure"}
+}
+
+Registre_poumon
+names(Registre_poumon)
+
+################ Verifications ##############
+
+tableau_UICC8 <- subset(Registre_poumon, Registre_poumon$UICC == 8)
+tableau_pTNM <- subset(tableau_UICC8, tableau_UICC8$STADE != "on utilise le cTNM")
+tableau_cTNM <- subset(tableau_UICC8, tableau_UICC8$STADE == "on utilise le cTNM")
+
+print(table(tableau_cTNM$STADE_precision, useNA = "always"))
+print(table(tableau_pTNM$STADE, useNA = "always"))
+#    pT!  Stade II-B Stade III-A Stade III-B  Stade IV-A  Stade IV-B  voir le pT        <NA> 
+#   265          89         242         118         263         358         585           0 
+
+print(length(tableau_pTNM$NUM_IDTUMEUR)) #1920
+names(tableau_pTNM)
+library(dplyr)
+tableau_retreci <- select(tableau_pTNM, c("NUM_IDTUMEUR", "PT", "PN", "PM", "CT", "CN", "CM", "STADE", "STADE_precision"    ))
+
+print(table(tableau_pTNM$PN, useNA = "always"))
+# valeurs possible pour le pM dans ceux UICC = 8 
+#   ""    1   1a   1b   1c    8  <NA>
+# 1322    7  179   84  351    2    0
+
+# valeurs possible pour le pN dans ceux UICC = 8 
+#  ""  0   1   2   3   8    x  y0  y1  y2  <NA>
+# 589 593 148 239  79 258  13  17   4   5    0
+
+# valeurs possible pour le pT dans ceux UICC = 8 
+#   ""  0   1  1a  1b  1c 1mi   2  2a  2b   3   4   7   8  y0 y1a y1c y2a y2b  y3  y4 <NA>
+# 745   1   1  46 220 134   5   6 202  68 138  90   1 258   5   1   5   2   1   7   9   0
+
+
+
+# valeurs possible pour le pM dans ceux UICC = 8 
+# 1  1a  1b  1c 
+# 7 179  84 351
+
+print(table(tableau_pTNM$STADE_imprecis, useNA = "always"))
+# imprécis     <NA> 
+#        7     1938 
+
+#Il y a bien le même nombre d'imprécis que de valeur 1 dans le pM
+library(Epi)
+#print(twoby2(tableau_pM$STADE_imprecis, tableau_pM$PM)) Ne marche pas
+
+# "pT!" si pM est "" ou 8 et si pN est ""
+tableau_pT <-  subset(tableau_pTNM, tableau_pTNM$STADE == "pT!")
+
+print(table(tableau_pT$PT, useNA = "always"))
+
+# 1a 1b 2a  3 
+#  3  7  5  2
+
